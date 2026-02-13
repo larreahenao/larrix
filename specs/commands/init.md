@@ -31,3 +31,11 @@ This file contains the core logic for the `init` command. It uses templates from
 ## File: `src/templates/init.js`
 
 This file exports template strings and functions for generating the initial project files. This includes `package.json`, `larrix.config.js`, and the basic HTML, CSS, and JavaScript for the popup.
+
+
+Description
+In-Scope
+Out-of-Scope
+Envolved files
+Watermark
+Edge Cases

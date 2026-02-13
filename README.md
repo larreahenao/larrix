@@ -1,10 +1,12 @@
-![Larrix](docs/assets/logo.png)
-
 # Larrix
 
 The vanilla JS framework for browser extensions.
 
 Larrix is a zero-dependency CLI that scaffolds, builds, and packages Manifest V3 browser extensions using only vanilla JavaScript and Node.js built-ins.
+
+## Core Principles
+
+-   **Zero Dependencies**: Larrix is built with only vanilla JavaScript and Node.js built-ins. We do not use external libraries. This keeps the framework lightweight and secure.
 
 ## Install
 
