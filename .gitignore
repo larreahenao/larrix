@@ -1,2 +1,5 @@
 node_modules/
-test-ext/
+larrix-extension/
+dist/
+
+package-lock.json

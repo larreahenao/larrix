@@ -8,12 +8,12 @@ const FOREGROUND_GREEN = '\x1b[32m';
 const FOREGROUND_RED = '\x1b[31m';
 const FOREGROUND_YELLOW = '\x1b[33m';
 
-const bold = (text) => `${BOLD}${text}${RESET}`;
-const dim = (text) => `${DIM}${text}${RESET}`;
-const cyan = (text) => `${FOREGROUND_CYAN}${text}${RESET}`;
-const green = (text) => `${FOREGROUND_GREEN}${text}${RESET}`;
-const red = (text) => `${FOREGROUND_RED}${text}${RESET}`;
-const yellow = (text) => `${FOREGROUND_YELLOW}${text}${RESET}`;
+const bold = (text: string) => `${BOLD}${text}${RESET}`;
+const dim = (text: string) => `${DIM}${text}${RESET}`;
+const cyan = (text: string) => `${FOREGROUND_CYAN}${text}${RESET}`;
+const green = (text: string) => `${FOREGROUND_GREEN}${text}${RESET}`;
+const red = (text: string) => `${FOREGROUND_RED}${text}${RESET}`;
+const yellow = (text: string) => `${FOREGROUND_YELLOW}${text}${RESET}`;
 
 /**
  * A custom logger for formatted console output.
@@ -32,7 +32,7 @@ class Logger {
      * When quiet mode is enabled, no messages will be logged to the console.
      * @param {boolean} value - True to enable quiet mode, false to disable.
      */
-    setQuiet(value) {
+    setQuiet(value: boolean) {
         this.isQuiet = value;
     }
 
@@ -40,7 +40,7 @@ class Logger {
      * Logs a general informational message.
      * @param {string} message - The informational message to log.
      */
-    info(message) {
+    info(message: string) {
         if (this.isQuiet) return;
         console.log(`  ${message}`);
     }
@@ -50,7 +50,7 @@ class Logger {
      * @param {string} step - The name of the current step (e.g., "build", "dev").
      * @param {string} message - The message to log.
      */
-    step(step, message) {
+    step(step: string, message: string) {
         if (this.isQuiet) return;
         console.log(`  ${dim(`[${step}]`)} ${message}`);
     }
@@ -59,7 +59,7 @@ class Logger {
      * Logs a success message.
      * @param {string} message - The success message to log.
      */
-    success(message) {
+    success(message: string) {
         if (this.isQuiet) return;
         console.log(`  ${green(message)}`);
     }
@@ -68,7 +68,7 @@ class Logger {
      * Logs a warning message.
      * @param {string} message - The warning message to log.
      */
-    warn(message) {
+    warn(message: string) {
         if (this.isQuiet) return;
         console.log(`  ${yellow(message)}`);
     }
@@ -77,7 +77,7 @@ class Logger {
      * Logs an error message.
      * @param {string} message - The error message to log.
      */
-    error(message) {
+    error(message: string) {
         if (this.isQuiet) return;
         console.log(`  ${red(message)}`);
     }
@@ -87,7 +87,7 @@ class Logger {
      * @param {string} path - The path to the file.
      * @param {string} size - The formatted size of the file.
      */
-    file(path, size) {
+    file(path: string, size: string) {
         if (this.isQuiet) return;
         const paddedPath = path.padEnd(40);
         console.log(`  ${cyan(paddedPath)} ${dim(size)}`);
@@ -106,7 +106,7 @@ class Logger {
      * @param {number} bytes - The size in bytes.
      * @returns {string} The formatted size string.
      */
-    formatSize(bytes) {
+    formatSize(bytes: number) {
         if (bytes < 1024) return `${bytes} B`;
         return `${(bytes / 1024).toFixed(2)} kB`;
     }
@@ -117,7 +117,7 @@ class Logger {
      * @param {string} [defaultValue] - The default value to use if no input is provided or in quiet mode.
      * @returns {Promise<string>} A Promise that resolves with the user's input.
      */
-    prompt(question, defaultValue) {
+    prompt(question: string, defaultValue?: string): Promise<string> {
         if (!defaultValue) {
             throw new Error("Default value is required for prompt");
         }

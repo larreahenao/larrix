@@ -1,9 +1,10 @@
 import { join } from "node:path";
-import { writeFile, existsSync } from "node:fs";
+import { writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { logger } from "./logger.js";
-import { cleanDirectory, copyDirectory, getFilesRecursive, fileExists } from "./filesystem.js";
-import { createZip } from "./zip.js";
+import { logger } from "@utils/logger";
+import { cleanDirectory, copyDirectory, getFilesRecursive, fileExists } from "@utils/filesystem";
+import { createZip } from "@utils/zip";
 
 /**
  * Validates if the current directory is a valid Larrix project by checking
@@ -12,7 +13,7 @@ import { createZip } from "./zip.js";
  * file check as it's a critical initial validation.
  * @param {string} currentWorkingDirectory - The path to the current working directory.
  */
-export function validateLarrixProject(currentWorkingDirectory) {
+export function validateLarrixProject(currentWorkingDirectory: string) {
     const configPath = join(currentWorkingDirectory, "larrix.config.js");
     if (!existsSync(configPath)) {
         logger.warn("This is not a valid Larrix project. 'larrix.config.js' not found in the current directory.");
@@ -25,7 +26,7 @@ export function validateLarrixProject(currentWorkingDirectory) {
  * working directory. It dynamically imports the configuration file.
  * @returns {Promise<object>} A promise that resolves to the project configuration object.
  */
-export async function loadConfiguration() {
+export async function loadConfiguration(): Promise<any> {
     const currentWorkingDirectory = process.cwd();
     const configurationPath = join(currentWorkingDirectory, "larrix.config.js");
     const configurationUrl = pathToFileURL(configurationPath).href;
@@ -33,17 +34,20 @@ export async function loadConfiguration() {
     return configuration;
 }
 
+interface BuildOptions {
+    outputDirectory: string;
+    createZip: boolean;
+    quiet?: boolean;
+}
+
 /**
  * Executes the core build process for the Larrix project.
  * This function handles loading configuration, cleaning output directories,
  * copying source files, generating the manifest, and optionally creating a ZIP archive.
  *
- * @param {object} options - The build options.
- * @param {string} options.outputDirectory - The name of the output directory (e.g., 'dist', 'tmp').
- * @param {boolean} options.createZip - Whether to create a ZIP archive of the build output.
- * @param {boolean} [options.quiet=false] - If true, suppresses console output during the build process.
+ * @param {BuildOptions} options - The build options.
  */
-export async function buildExtension(options) {
+export async function buildExtension(options: BuildOptions) {
     const { outputDirectory, createZip: shouldCreateZip, quiet = false } = options;
     logger.setQuiet(quiet);
 
@@ -72,7 +76,7 @@ export async function buildExtension(options) {
 
     const manifest = await generateManifest(configuration, sourceDirectory);
     const manifestContent = JSON.stringify(manifest, null, 4);
-    await writeFile(join(distributionDirectory, "manifest.json"), manifestContent);
+    await writeFile(join(distributionDirectory, "manifest.json"), manifestContent, { encoding: 'utf8' });
 
     logger.newLine();
     logger.file(`${outputDirectory}/manifest.json`, logger.formatSize(Buffer.byteLength(manifestContent)));
@@ -102,8 +106,8 @@ export async function buildExtension(options) {
  * @param {string} sourceDirectory - The path to the source directory.
  * @returns {Promise<object>} The generated manifest object.
  */
-export async function generateManifest(configuration, sourceDirectory) {
-    const manifest = {
+export async function generateManifest(configuration: any, sourceDirectory: string) {
+    const manifest: any = {
         manifest_version: 3,
         name: configuration.name,
         version: configuration.version,
@@ -134,9 +138,9 @@ export async function generateManifest(configuration, sourceDirectory) {
     return manifest;
 }
 
-export async function regenerateManifest(sourceDirectory, distributionDirectory) {
+export async function regenerateManifest(sourceDirectory: string, distributionDirectory: string) {
     const configuration = await loadConfiguration();
     const manifest = await generateManifest(configuration, sourceDirectory);
     const manifestContent = JSON.stringify(manifest, null, 4);
-    await writeFile(join(distributionDirectory, "manifest.json"), manifestContent);
+    await writeFile(join(distributionDirectory, "manifest.json"), manifestContent, { encoding: 'utf8' });
 }

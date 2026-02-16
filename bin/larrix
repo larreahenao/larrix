@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { run } from '../core/cli.js';
+import { run } from '../dist/index.js';
 
 const args = process.argv.slice(2);
 

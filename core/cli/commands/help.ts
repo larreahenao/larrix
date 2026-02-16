@@ -1,4 +1,15 @@
-import { logger } from "../utils/logger.js";
+import { logger } from "@utils/logger";
+
+interface CommandHelp {
+    description: string;
+    usage: string;
+    options: string[];
+    examples: string[];
+}
+
+interface KnownCommands {
+    [key: string]: CommandHelp;
+}
 
 /**
  * Displays help information for the Larrix CLI.
@@ -6,8 +17,8 @@ import { logger } from "../utils/logger.js";
  * Otherwise, it displays general CLI usage.
  * @param {string[]} params - The command-line parameters for the help command.
  */
-export async function help(params) {
-    const knownCommands = {
+export async function help(params: string[]) {
+    const knownCommands: KnownCommands = {
         init: {
             description: "Initializes a new Larrix project.",
             usage: "larrix init [options]",
@@ -69,10 +80,10 @@ export async function help(params) {
 
 /**
  * Displays the general usage information for the Larrix CLI.
- * @param {object} knownCommands - An object containing details of all known commands.
+ * @param {KnownCommands} knownCommands - An object containing details of all known commands.
  * @private
  */
-function displayGeneralHelp(knownCommands) {
+function displayGeneralHelp(knownCommands: KnownCommands) {
     logger.newLine();
     logger.info("Larrix CLI Usage:");
     logger.newLine();
@@ -90,10 +101,10 @@ function displayGeneralHelp(knownCommands) {
 /**
  * Displays detailed help information for a specific command.
  * @param {string} commandName - The name of the command.
- * @param {object} commandHelp - The help object for the specific command.
+ * @param {CommandHelp} commandHelp - The help object for the specific command.
  * @private
  */
-function displaySpecificHelp(commandName, commandHelp) {
+function displaySpecificHelp(commandName: string, commandHelp: CommandHelp) {
     logger.newLine();
     logger.info(`Command: ${commandName}`);
     logger.newLine();

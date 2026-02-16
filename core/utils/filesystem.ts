@@ -1,7 +1,7 @@
 import { rm, mkdir, readdir, copyFile, stat, access, readFile, writeFile } from "node:fs/promises";
 import { join, relative, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { logger } from "./logger.js";
+import { logger } from "@utils/logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
  * Cleans a directory by removing it and all its contents, then recreating it.
  * @param {string} directory - The path to the directory to clean.
  */
-export async function cleanDirectory(directory) {
+export async function cleanDirectory(directory: string) {
     await rm(directory, { recursive: true, force: true });
     await mkdir(directory, { recursive: true });
 }
@@ -20,7 +20,7 @@ export async function cleanDirectory(directory) {
  * @param {string} source - The path to the source directory.
  * @param {string} destination - The path to the destination directory.
  */
-export async function copyDirectory(source, destination) {
+export async function copyDirectory(source: string, destination: string) {
     await mkdir(destination, { recursive: true });
 
     const entries = await readdir(source, { withFileTypes: true });
@@ -43,8 +43,8 @@ export async function copyDirectory(source, destination) {
  * @param {string} [base=directory] - The base directory to calculate relative paths from.
  * @returns {Promise<Array<{path: string, size: number}>>} A promise that resolves to an array of file objects.
  */
-export async function getFilesRecursive(directory, base = directory) {
-    const files = [];
+export async function getFilesRecursive(directory: string, base: string = directory): Promise<{ path: string; size: number }[]> {
+    const files: { path: string; size: number }[] = [];
     const entries = await readdir(directory, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -70,7 +70,7 @@ export async function getFilesRecursive(directory, base = directory) {
  * @param {string} path - The path to check.
  * @returns {Promise<boolean>} True if the file/directory exists, false otherwise.
  */
-export async function fileExists(path) {
+export async function fileExists(path: string) {
     try {
         await access(path);
         return true;
@@ -83,7 +83,7 @@ export async function fileExists(path) {
  * Injects the live-reload client code into the background service worker.
  * @param {string} distributionDirectory - The path to the distribution directory.
  */
-export async function injectLiveReloadCode(distributionDirectory) {
+export async function injectLiveReloadCode(distributionDirectory: string) {
     const backgroundScriptPath = join(distributionDirectory, "background", "index.js");
     const liveReloadClientSource = join(__dirname, "..", "utils", "live-reload-client.js");
 
@@ -91,7 +91,7 @@ export async function injectLiveReloadCode(distributionDirectory) {
         const backgroundScriptContent = await readFile(backgroundScriptPath, "utf-8");
         const liveReloadClientContent = await readFile(liveReloadClientSource, "utf-8");
         await writeFile(backgroundScriptPath, liveReloadClientContent + '\n' + backgroundScriptContent);
-    } catch (error) {
+    } catch (error: any) {
         logger.error(`Could not inject live reload client: ${error.message} `);
     }
 }

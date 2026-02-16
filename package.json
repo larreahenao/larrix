@@ -7,14 +7,23 @@
     "bin": {
         "larrix": "bin/larrix"
     },
+    "scripts": {
+        "build": "tsup core/cli/index.ts --format esm --dts --clean",
+        "dev": "tsup core/cli/index.ts --format esm --dts --watch"
+    },
     "files": [
-        "bin",
-        "core"
+        "dist"
     ],
-    "main": "core/cli.js",
+    "main": "dist/index.js",
     "keywords": [
         "extension",
         "framework",
         "vanilla"
-    ]
+    ],
+    "devDependencies": {
+        "@types/chrome": "0.1.36",
+        "@types/node": "25.2.3",
+        "tsup": "8.5.1",
+        "typescript": "5.9.3"
+    }
 }

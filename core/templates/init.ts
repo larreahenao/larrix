@@ -3,7 +3,7 @@
  * @param {string} projectName - The name of the project.
  * @returns {string} The formatted package.json content.
  */
-export function packageJson(projectName) {
+export function packageJson(projectName: string): string {
     return JSON.stringify({
         name: projectName,
         version: "1.0.0",
@@ -21,7 +21,7 @@ export function packageJson(projectName) {
  * @param {string} projectName - The name of the project.
  * @returns {string} The larrix.config.js content.
  */
-export function larrixConfig(projectName) {
+export function larrixConfig(projectName: string): string {
     return `export default {
     name: "${projectName}",
     version: "1.0.0",

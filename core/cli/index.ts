@@ -1,13 +1,13 @@
-import { init } from "../commands/init.js";
-import { build } from "../commands/build.js";
-import { dev } from "../commands/dev.js";
-import { help } from "../commands/help.js";
+import { init } from "@cli/commands/init";
+import { build } from "@cli/commands/build";
+import { dev } from "@cli/commands/dev";
+import { help } from "@cli/commands/help";
 
 /**
  * Executes the appropriate command based on the provided arguments.
  * @param {string[]} args - The command-line arguments.
  */
-export async function run(args) {
+export async function run(args: string[]) {
     const command = args[0];
     const params = args.slice(1);
 

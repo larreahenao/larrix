@@ -9,11 +9,11 @@ import { writeFile } from "node:fs/promises";
  * @param {string} outputPath - The path where the output ZIP file will be saved.
  * @returns {Promise<number>} The total size of the generated ZIP file in bytes.
  */
-export async function createZip(sourceDirectory, outputPath) {
+export async function createZip(sourceDirectory: string, outputPath: string): Promise<number> {
     const files = await collectFiles(sourceDirectory);
 
-    const localHeaders = [];
-    const centralHeaders = [];
+    const localHeaders: Buffer[] = [];
+    const centralHeaders: Buffer[] = [];
     let offset = 0;
 
     for (const file of files) {
@@ -49,8 +49,8 @@ export async function createZip(sourceDirectory, outputPath) {
  * @param {string} [base=directory] - The base path to make file paths relative to.
  * @returns {Promise<string[]>} A list of relative file paths.
  */
-async function collectFiles(directory, base = directory) {
-    const results = [];
+async function collectFiles(directory: string, base: string = directory): Promise<string[]> {
+    const results: string[] = [];
     const entries = await readdir(directory, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -74,7 +74,7 @@ async function collectFiles(directory, base = directory) {
  * @param {number} crc - The CRC-32 checksum of the original content.
  * @returns {Buffer} The complete local file header and compressed content.
  */
-function buildLocalHeader(nameBuffer, compressed, original, crc) {
+function buildLocalHeader(nameBuffer: Buffer, compressed: Buffer, original: Buffer, crc: number): Buffer {
     const header = Buffer.alloc(30);
     header.writeUInt32LE(0x04034b50, 0);       // local file header signature
     header.writeUInt16LE(20, 4);                // version needed to extract
@@ -100,7 +100,7 @@ function buildLocalHeader(nameBuffer, compressed, original, crc) {
  * @param {number} localHeaderOffset - The offset of the local file header.
  * @returns {Buffer} The complete central directory header.
  */
-function buildCentralHeader(nameBuffer, compressed, original, crc, localHeaderOffset) {
+function buildCentralHeader(nameBuffer: Buffer, compressed: Buffer, original: Buffer, crc: number, localHeaderOffset: number): Buffer {
     const header = Buffer.alloc(46);
     header.writeUInt32LE(0x02014b50, 0);       // central directory header signature
     header.writeUInt16LE(20, 4);                // version made by
@@ -130,7 +130,7 @@ function buildCentralHeader(nameBuffer, compressed, original, crc, localHeaderOf
  * @param {number} centralDirOffset - The offset where the central directory starts.
  * @returns {Buffer} The "End of Central Directory" record.
  */
-function buildEndRecord(entryCount, centralDirSize, centralDirOffset) {
+function buildEndRecord(entryCount: number, centralDirSize: number, centralDirOffset: number): Buffer {
     const record = Buffer.alloc(22);
     record.writeUInt32LE(0x06054b50, 0);        // end of central directory signature
     record.writeUInt16LE(0, 4);                  // number of this disk
@@ -149,7 +149,7 @@ function buildEndRecord(entryCount, centralDirSize, centralDirOffset) {
  * @param {Buffer} buffer - The input buffer.
  * @returns {number} The calculated CRC-32 checksum.
  */
-function crc32(buffer) {
+function crc32(buffer: Buffer): number {
     let crc = 0xFFFFFFFF;
 
     for (let i = 0; i < buffer.length; i++) {

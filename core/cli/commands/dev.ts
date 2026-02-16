@@ -1,11 +1,11 @@
 import { join, dirname } from "node:path";
 import { watch } from "node:fs";
-import { createServer, ServerResponse } from "node:http";
+import { createServer, ServerResponse, IncomingMessage } from "node:http";
 import { readFile, rm, copyFile, mkdir, access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { buildExtension, validateLarrixProject, regenerateManifest } from "../utils/extension-service.js";
-import { logger } from "../utils/logger.js";
-import { injectLiveReloadCode } from "../utils/filesystem.js";
+import { buildExtension, validateLarrixProject, regenerateManifest } from "@utils/extension-service";
+import { logger } from "@utils/logger";
+import { injectLiveReloadCode } from "@utils/filesystem";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -20,17 +20,16 @@ const CONTENT_TYPE_CSS = "text/css";
 const CONTENT_TYPE_JSON = "application/json";
 const CONTENT_TYPE_OCTET_STREAM = "application/octet-stream";
 
-/**
- * @typedef {object} DevServerContext
- * @property {ServerResponse[]} clients - Array of ServerResponse objects for SSE clients.
- * @property {string} distributionDirectory - The path to the distribution directory.
- */
+interface DevServerContext {
+    clients: ServerResponse[];
+    distributionDirectory: string;
+}
 
 /**
  * Runs the build process and injects the live-reload code.
  * @param {string} distributionDirectory - The path to the distribution directory.
  */
-async function buildAndInject(distributionDirectory) {
+async function buildAndInject(distributionDirectory: string) {
     await buildExtension({
         outputDirectory: OUTPUT_DIRECTORY,
         createZip: false,
@@ -46,7 +45,7 @@ async function buildAndInject(distributionDirectory) {
  * in the source directory, and triggers live reloads in the browser extension
  * via Server-Sent Events (SSE).
  */
-export async function dev() {
+export async function dev(args: string[]) {
     const currentWorkingDirectory = process.cwd();
     validateLarrixProject(currentWorkingDirectory); // Perform project validation first
 
@@ -57,7 +56,7 @@ export async function dev() {
     await buildAndInject(distributionDirectory);
 
     /** @type {DevServerContext} */
-    const devServerContext = {
+    const devServerContext: DevServerContext = {
         clients: [],
         distributionDirectory: distributionDirectory,
     };
@@ -84,7 +83,7 @@ export async function dev() {
  * @param {DevServerContext} context - The development server context.
  * @returns {import('node:http').Server} The created HTTP server instance.
  */
-function startDevelopmentServer(context) {
+function startDevelopmentServer(context: DevServerContext) {
     const server = createServer(async (request, response) => {
         logger.step("dev", `Request: ${request.method} ${request.url} `);
         if (request.url === EVENTS_ENDPOINT) {
@@ -110,7 +109,9 @@ function startDevelopmentServer(context) {
                 context.clients.splice(context.clients.indexOf(response), 1);
             });
         } else {
-            await serveStaticFile(request.url, context.distributionDirectory, response);
+            if (request.url) {
+                await serveStaticFile(request.url, context.distributionDirectory, response);
+            }
         }
     });
 
@@ -128,7 +129,7 @@ function startDevelopmentServer(context) {
  * @param {string} distributionDirectory - The path to the distribution directory.
  * @param {ServerResponse} response - The HTTP response object.
  */
-async function serveStaticFile(requestUrl, distributionDirectory, response) {
+async function serveStaticFile(requestUrl: string, distributionDirectory: string, response: ServerResponse) {
     if (requestUrl === "/") {
         response.writeHead(302, { "Location": "/popup/" });
         response.end();
@@ -151,7 +152,7 @@ async function serveStaticFile(requestUrl, distributionDirectory, response) {
 
         response.writeHead(200, { "Content-Type": contentType });
         response.end(fileContent);
-    } catch (error) {
+    } catch (error: any) {
         response.writeHead(404, { "Content-Type": "text/plain" });
         response.end("Not Found");
         logger.error(`Error serving file ${filePath}: ${error.message}`);
@@ -164,7 +165,7 @@ async function serveStaticFile(requestUrl, distributionDirectory, response) {
  * @param {DevServerContext} context - The development server context.
  * @returns {import('node:fs').FSWatcher} The file watcher instance.
  */
-function watchSourceFiles(sourceDirectory, context) {
+function watchSourceFiles(sourceDirectory: string, context: DevServerContext) {
     logger.step("dev", "Watching for file changes in src directory...");
     const watcher = watch(sourceDirectory, { recursive: true }, async (eventType, filename) => {
         if (filename) {
@@ -177,13 +178,13 @@ function watchSourceFiles(sourceDirectory, context) {
                 await mkdir(dirname(destPath), { recursive: true });
                 await copyFile(sourcePath, destPath);
                 logger.info(`Copied ${filename} to ${OUTPUT_DIRECTORY}.`);
-            } catch (error) {
+            } catch (error: any) {
                 if (error.code === 'ENOENT') {
                     logger.info(`File deleted: ${filename}`);
                     try {
                         await rm(destPath, { recursive: true, force: true });
                         logger.info(`Deleted ${filename} from ${OUTPUT_DIRECTORY}.`);
-                    } catch (deleteError) {
+                    } catch (deleteError: any) {
                         if (deleteError.code !== 'ENOENT') {
                             logger.error(`Failed to delete ${filename}: ${deleteError.message}`);
                         }

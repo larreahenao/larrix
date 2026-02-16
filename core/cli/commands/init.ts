@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { logger } from "../utils/logger.js";
-import * as templates from "../templates/init.js";
+import { logger } from "@utils/logger";
+import * as templates from "@templates/init";
 
 /**
  * Initializes a new Larrix project by creating the necessary directory structure
@@ -9,7 +9,7 @@ import * as templates from "../templates/init.js";
  * @param {string[]} args - The command-line arguments, with the first argument
  *                           being the optional project name.
  */
-export async function init(args) {
+export async function init(args: string[]) {
     let projectName = args[0];
 
     logger.newLine();
